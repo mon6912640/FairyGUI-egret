@@ -987,11 +987,12 @@ module fairygui {
         protected handleGrayedChanged(): void {
             if (this._displayObject) {
                 if (this._grayed) {
-                    var colorFlilter = new egret.ColorMatrixFilter(GObject.colorMatrix);
-                    this._displayObject.filters = [colorFlilter];
+                    // var colorFlilter = new egret.ColorMatrixFilter(GObject.colorMatrix);
+                    // this._displayObject.filters = [colorFlilter];
                 }
-                else
-                    this._displayObject.filters = null;
+                else {
+                    // this._displayObject.filters = null;
+                }
             }
         }
 

@@ -305,6 +305,7 @@ module fairygui {
                 this.selected = this._pageOption.id == c.selectedPageId;
         }
 
+        protected _grayItem:PackageItem;
         protected handleGrayedChanged(): void {
             if (this._buttonController && this._buttonController.hasPage(GButton.DISABLED)) {
                 if (this.grayed) {
@@ -318,8 +319,33 @@ module fairygui {
                 else
                     this.setState(GButton.UP);
             }
-            else
+            else {
                 super.handleGrayedChanged();
+                if (this.data) {
+                    if (this._grayItem === undefined) {
+                        let t_obj = CustomTool.parseStr2ObjectOrArray(this.data);
+                        if (t_obj && t_obj["gray"]) {
+                            let t_grayItem = UIPackage.getItemByURL(t_obj["gray"]);
+                            if (t_grayItem)
+                                this._grayItem = t_grayItem;
+                            else
+                                this._grayItem = null;
+                        }
+                        else
+                            this._grayItem = null;
+                    }
+                    if (!this._grayItem)
+                        return;
+                    if (this.grayed) {
+                        if (this._iconObject)
+                            this._iconObject.icon = "ui://" + this._grayItem.owner.id + this._grayItem.id;
+                    }
+                    else {
+                        if (this._iconObject)
+                            this._iconObject.icon = (this._selected && this._selectedIcon) ? this._selectedIcon : this._icon;
+                    }
+                }
+            }
         }
 
         protected constructExtension(buffer: ByteBuffer): void {
