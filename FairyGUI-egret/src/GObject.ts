@@ -927,6 +927,31 @@ module fairygui {
             if (newObj == this._displayObject)
                 return;
 
+            if(!this._displayObject)
+            {
+                console.log("=============", this.id, this.name);
+                console.log("FairyGUI:switchDisplayObject()调用显示对象不存在");
+                console.log("parent name list:>>>>");
+                while (this.parent) {
+                    console.log(this.parent.name);
+                }
+                console.log(">>>>");
+                if(this.packageItem)
+                {
+                    console.log("packageItem info > "+ "name:"+this.packageItem.name + "");
+                    console.log(`name:${this.packageItem.name}`);
+                    console.log(`id:${this.packageItem.id}`);
+                    
+                    if(this.packageItem.owner)
+                    {
+                        console.log(`owner name:${this.packageItem.owner.name}`);
+                        console.log(`owner id:${this.packageItem.owner.id}`);
+                    }
+                }
+                console.log("=============");
+                // return;
+            }
+
             var old: egret.DisplayObject = this._displayObject;
             if (this._displayObject.parent != null) {
                 var i: number = this._displayObject.parent.getChildIndex(this._displayObject);
