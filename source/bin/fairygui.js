@@ -4630,7 +4630,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             if (buffer.version >= 2) {
                 this._excludeInvisibles = buffer.readBool();
                 this._autoSizeDisabled = buffer.readBool();
-                this._mainChildIndex = buffer.readInt();
+                this._mainGridIndex = buffer.readInt();
             }
         };
         GGroup.prototype.setup_afterAdd = function (buffer, beginPos) {
@@ -7842,7 +7842,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         });
         Object.defineProperty(GLoader3D.prototype, "content", {
             get: function () {
-                return;
+                return this._content;
             },
             enumerable: true,
             configurable: true
@@ -7876,8 +7876,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 console.warn(err);
             if (!this._contentItem.asset)
                 return;
-            if (this._contentItem.type == fgui.PackageItemType.DragonBones)
-                this.setDragonBones(this._contentItem.armatureName, this._contentItem.asset.name, this._contentItem.atlasAsset.name, this._skinName, this._contentItem.skeletonAnchor);
+            if (this._contentItem.type == fgui.PackageItemType.DragonBones) {
+                var asset = this._contentItem.asset;
+                this.setDragonBones(this._contentItem.armatureName, asset.data.name, asset.atlasData.name, this._skinName, this._contentItem.skeletonAnchor);
+            }
         };
         GLoader3D.prototype.setDragonBones = function (armatureName, dragonBonesName, skinName, textureAtlasName, anchor) {
             this.url = null;
@@ -13336,7 +13338,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             if (delay == 0)
                 this.onDelayedPlay();
             else
-                fgui.GTween.delayedCall(delay).onComplete(this.onDelayedPlay, this);
+                fgui.GTween.delayedCall(delay).setTarget(this).onComplete(this.onDelayedPlay, this);
         };
         Transition.prototype.stop = function (setToComplete, processCallback) {
             if (setToComplete == undefined)
@@ -13672,7 +13674,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         Transition.prototype.internalPlay = function () {
             this._ownerBaseX = this._owner.x;
             this._ownerBaseY = this._owner.y;
-            this._totalTasks = 0;
+            this._totalTasks = 1;
             var cnt = this._items.length;
             var item;
             var needSkipAnimations = false;
@@ -13700,6 +13702,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             }
             if (needSkipAnimations)
                 this.skipAnimations();
+            this._totalTasks--;
         };
         Transition.prototype.playItem = function (item) {
             var time;
@@ -13971,11 +13974,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             if (this._playing && this._totalTasks == 0) {
                 if (this._totalTimes < 0) {
                     this.internalPlay();
+                    if (this._totalTasks == 0)
+                        fgui.GTween.delayedCall(0).setTarget(this).onComplete(this.checkAllComplete, this);
                 }
                 else {
                     this._totalTimes--;
-                    if (this._totalTimes > 0)
+                    if (this._totalTimes > 0) {
                         this.internalPlay();
+                        if (this._totalTasks == 0)
+                            fgui.GTween.delayedCall(0).setTarget(this).onComplete(this.checkAllComplete, this);
+                    }
                     else {
                         this._playing = false;
                         var cnt = this._items.length;
@@ -15198,9 +15206,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             var task3 = RES.getResAsync(texFile);
             Promise.all([task1, task2, task3]).then(function (values) {
                 var egretFactory = dragonBones.EgretFactory.factory;
-                item.asset = egretFactory.parseDragonBonesData(values[0]);
-                item.atlasAsset = egretFactory.parseTextureAtlasData(values[1], values[2]);
-                item.armatureName = item.asset.armatureNames[0];
+                var asset = {
+                    data: egretFactory.parseDragonBonesData(values[0]),
+                    atlasData: egretFactory.parseTextureAtlasData(values[1], values[2])
+                };
+                item.asset = asset;
+                item.armatureName = asset.data.armatureNames[0];
                 var arr = item.loading;
                 delete item.loading;
                 arr.forEach(function (e) { return e(null, item); });
