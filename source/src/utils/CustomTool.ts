@@ -1,4 +1,4 @@
-module fairygui {
+module fgui {
     export class CustomTool {
         constructor(parameters) {
         }
